@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pontos de Coleta</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJYf5k10Bh75U0nHK4riQgWax5KEW9PMc"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #mapa {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    .container {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 70%;
+      background-color: white;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+      transform: translateY(70%);
+      transition: transform 0.3s ease;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      z-index: 999;
+    }
+
+    .container.expanded {
+      transform: translateY(0%);
+      height: 90%;
+    }
+
+    .drag-handle {
+      width: 40px;
+      height: 5px;
+      background-color: #ccc;
+      border-radius: 3px;
+      margin: 8px auto;
+      cursor: pointer;
+    }
+
+    .titulo {
+      font-size: 18px;
+      font-family: "Montserrat", sans-serif;
+      font-weight: 500;
+      padding: 0 16px;
+    }
+
+    .busca input {
+      width: 90%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin: 12px auto;
+      display: block;
+      box-sizing: border-box;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 12px 16px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .card:hover {
+      background-color: #f3f3f3;
+    }
+
+    .card h3 {
+      font-size: 16px;
+      font-family: "Montserrat", sans-serif;
+      font-weight: 500;
+      margin: 0 0 4px 0;
+    }
+
+    .card p {
+      font-size: 14px;
+      font-family: "SourceCodePro", sans-serif;
+      margin: 4px 0;
+    }
+
+    .card .aberto {
+      color: #2e7d32;
+      font-weight: bold;
+    }
+
+    .btn-agendar {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+
+    .btn-agendar:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+<div id="mapa"></div>
+
+<div class="container" id="coletaContainer">
+  <div class="drag-handle" id="handle"></div>
+  <div class="titulo">Encontre pontos de coleta e organizações perto de você</div>
+  <div class="busca">
+    <input type="text" placeholder="Digite seu CEP" />
+  </div>
+
+<div class="card" data-lat="-15.8252" data-lng="-48.0433">
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <div style="flex-shrink: 0;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48" fill="#28a745" stroke="#28a745">
+        <path d="M24,4a12,12,0,0,0-2,23.8V42a2,2,0,0,0,4,0V27.8A12,12,0,0,0,24,4Zm0,16a4,4,0,1,1,4-4A4,4,0,0,1,24,20Z"></path>
+      </svg>
+    </div>
+    <div style="flex-grow: 1; text-align: left;">
+      <h3 style="margin: 0; font-size: 1rem;">Coleta Municipal</h3>
+      <p style="margin: 4px 0;">Trajeto pelo bairro Taguatinga Sul</p>
+      <p class="aberto" style="margin: 4px 0; color: green;">Quinta-feira a partir das 18h</p>
+    </div>
+  </div>
+</div>
+
+<div class="card" data-lat="-15.8367" data-lng="-48.0383">
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <div style="flex-shrink: 0;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48" fill="#28a745" stroke="#28a745">
+        <path d="M24,4a12,12,0,0,0-2,23.8V42a2,2,0,0,0,4,0V27.8A12,12,0,0,0,24,4Zm0,16a4,4,0,1,1,4-4A4,4,0,0,1,24,20Z"></path>
+      </svg>
+    </div>
+    <div style="flex-grow: 1; text-align: left;">
+      <h3 style="margin: 0; font-size: 1rem;">PEV's Estação de Metrô Águas Claras</h3>
+      <p style="margin: 4px 0;">Águas Claras, Brasília - DF</p>
+      <p class="aberto" style="margin: 4px 0; color: green;">Aberto de seg. a sex. das 6h às 23h</p>
+    </div>
+  </div>
+</div>
+
+<div class="card" data-lat="-15.8272" data-lng="-47.9315">
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <div style="flex-shrink: 0;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48" fill="#28a745" stroke="#28a745">
+        <path d="M24,4a12,12,0,0,0-2,23.8V42a2,2,0,0,0,4,0V27.8A12,12,0,0,0,24,4Zm0,16a4,4,0,1,1,4-4A4,4,0,0,1,24,20Z"></path>
+      </svg>
+    </div>
+    <div style="flex-grow: 1; text-align: left;">
+      <h3 style="margin: 0; font-size: 1rem;">PEV da Asa Sul</h3>
+      <p style="margin: 4px 0;">912 Sul, Brasília - DF</p>
+      <p class="aberto" style="margin: 4px 0; color: green;">Aberto de seg. a sab. das 7h às 19h</p>
+    </div>
+  </div>
+</div>
+
+<div class="card" data-lat="-15.7569" data-lng="-47.8781">
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <div style="flex-shrink: 0;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48" fill="#28a745" stroke="#28a745">
+        <path d="M24,4a12,12,0,0,0-2,23.8V42a2,2,0,0,0,4,0V27.8A12,12,0,0,0,24,4Zm0,16a4,4,0,1,1,4-4A4,4,0,0,1,24,20Z"></path>
+      </svg>
+    </div>
+    <div style="flex-grow: 1; text-align: left;">
+      <h3 style="margin: 0; font-size: 1rem;">PEV da Asa Norte</h3>
+      <p style="margin: 4px 0;">911 Norte, Brasília - DF</p>
+      <p class="aberto" style="margin: 4px 0; color: green;">Aberto de seg. a sab. das 7h às 19h</p>
+    </div>
+  </div>
+</div>
+
+<div class="card" data-lat="-15.7876" data-lng="-47.9318">
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <div style="flex-shrink: 0;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48" fill="#28a745" stroke="#28a745">
+        <path d="M24,4a12,12,0,0,0-2,23.8V42a2,2,0,0,0,4,0V27.8A12,12,0,0,0,24,4Zm0,16a4,4,0,1,1,4-4A4,4,0,0,1,24,20Z"></path>
+      </svg>
+    </div>
+    <div style="flex-grow: 1; text-align: left;">
+      <h3 style="margin: 0; font-size: 1rem;">PEV do Sudoeste</h3>
+      <p style="margin: 4px 0;">Próximo ao Bosque do Sudoeste</p>
+      <p class="aberto" style="margin: 4px 0; color: green;">Aberto de seg. a sab. das 7h às 19h</p>
+    </div>
+  </div>
+</div>
+
+<div class="card" data-lat="-15.8758" data-lng="-48.0510">
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <div style="flex-shrink: 0;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48" fill="#28a745" stroke="#28a745">
+        <path d="M24,4a12,12,0,0,0-2,23.8V42a2,2,0,0,0,4,0V27.8A12,12,0,0,0,24,4Zm0,16a4,4,0,1,1,4-4A4,4,0,0,1,24,20Z"></path>
+      </svg>
+    </div>
+    <div style="flex-grow: 1; text-align: left;">
+      <h3 style="margin: 0; font-size: 1rem;">URE Samambaia</h3>
+      <p style="margin: 4px 0;">Unidade de Entulho - Samambaia</p>
+      <p class="aberto" style="margin: 4px 0; color: green;">Segunda a sexta, 8h às 17h</p>
+    </div>
+  </div>
+</div>
+
+<!-- Externos fora do container -->
+<div class="card" data-lat="-15.8850" data-lng="-48.0200">
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <div style="flex-shrink: 0;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48" fill="#28a745" stroke="#28a745">
+        <path d="M24,4a12,12,0,0,0-2,23.8V42a2,2,0,0,0,4,0V27.8A12,12,0,0,0,24,4Zm0,16a4,4,0,1,1,4-4A4,4,0,0,1,24,20Z"></path>
+      </svg>
+    </div>
+    <div style="flex-grow: 1; text-align: left;">
+      <h3 style="margin: 0; font-size: 1rem;">PEV Águas Lindas de Goiás</h3>
+      <p style="margin: 4px 0;">Área de Coleta Municipal</p>
+      <p class="aberto" style="margin: 4px 0; color: green;">Funcionamento: Seg a Sex, 8h-18h</p>
+    </div>
+  </div>
+</div>
+
+<div class="card" data-lat="-15.8860" data-lng="-48.0800">
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <div style="flex-shrink: 0;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48" fill="#28a745" stroke="#28a745">
+        <path d="M24,4a12,12,0,0,0-2,23.8V42a2,2,0,0,0,4,0V27.8A12,12,0,0,0,24,4Zm0,16a4,4,0,1,1,4-4A4,4,0,0,1,24,20Z"></path>
+      </svg>
+    </div>
+    <div style="flex-grow: 1; text-align: left;">
+      <h3 style="margin: 0; font-size: 1rem;">PEV Novo Gama</h3>
+      <p style="margin: 4px 0;">Unidade de Entulho - Novo Gama</p>
+      <p class="aberto" style="margin: 4px 0; color: green;">Funcionamento: Seg a Sex, 8h-18h</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  let map;
+  const markers = {};
+  const infoWindows = {};
+
+  function initMap() {
+    map = new google.maps.Map(document.getElementById("mapa"), {
+      center: { lat: -15.7942, lng: -47.8822 },
+      zoom: 12,
+    });
+
+    const locais = {
+      'E-Reciclagem': { lat: -15.8311, lng: -48.0554, desc: "E-Reciclagem - Taguatinga Sul" },
+      'Coleta Municipal': { lat: -15.8252, lng: -48.0433, desc: "Coleta Municipal - Taguatinga Sul" },
+      'PEV Metrô': { lat: -15.8367, lng: -48.0383, desc: "PEV Metrô - Águas Claras" },
+      'PEV Asa Sul': { lat: -15.8272, lng: -47.9315, desc: "PEV Asa Sul - 912 Sul" },
+      'PEV Asa Norte': { lat: -15.7569, lng: -47.8781, desc: "PEV Asa Norte - 911 Norte" },
+      'PEV Sudoeste': { lat: -15.7876, lng: -47.9318, desc: "PEV Sudoeste - Bosque do Sudoeste" },
+      'URE Samambaia': { lat: -15.8758, lng: -48.0510, desc: "URE Samambaia - Samambaia" },
+      'PEV Águas Lindas': { lat: -15.8850, lng: -48.0200, desc: "PEV Águas Lindas de Goiás" },
+      'PEV Água Quente': { lat: -15.8900, lng: -48.0100, desc: "PEV Água Quente" },
+      'PEV Arapoanga': { lat: -15.8700, lng: -48.0000, desc: "PEV Arapoanga - Planaltina" },
+      'PEV Jacarandá': { lat: -15.8200, lng: -48.0000, desc: "PEV Águas Claras - Avenida Jacarandá" }
+    };
+
+    for (const nome in locais) {
+      const local = locais[nome];
+      markers[nome] = new google.maps.Marker({
+        position: { lat: local.lat, lng: local.lng },
+        map: map,
+        title: nome,
+      });
+
+      infoWindows[nome] = new google.maps.InfoWindow({
+        content: `${local.desc} <div style='text-align:center'><button class='btn-agendar' onclick="irParaFormulario('${nome}')">AGENDAR</button></div>`
+      });
+
+      markers[nome].addListener('click', () => {
+        infoWindows[nome].open(map, markers[nome]);
+      });
+    }
+
+    const container = document.getElementById('coletaContainer');
+    const handle = document.getElementById('handle');
+    handle.addEventListener('click', () => {
+      container.classList.toggle('expanded');
+    });
+
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        const lat = parseFloat(card.dataset.lat);
+        const lng = parseFloat(card.dataset.lng);
+        map.panTo({ lat, lng });
+        map.setZoom(16);
+
+        for (const nome in markers) {
+          const pos = markers[nome].getPosition();
+          if (pos.lat() === lat && pos.lng() === lng) {
+            infoWindows[nome].open(map, markers[nome]);
+          }
+        }
+
+        container.classList.remove('expanded');
+      });
+    });
+  }
+
+  function irParaFormulario(ponto) {
+    localStorage.setItem('pontoTemp', ponto);
+    window.location.href = '/formulario'; 
+  }
+
+  window.onload = initMap;
+</script>
+
+</body>
+</html>

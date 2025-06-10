@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Agendar Coleta</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .back-btn {
+      font-size: 20px;
+      text-decoration: none;
+      color: #333;
+      margin-right: 15px;
+    }
+    .local-card {
+      margin-top: 10px;
+      box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.15);
+    }
+    .local-card,
+    .calendar-section,
+    .material-section,
+    .peso-section,
+    .observacao,
+    .toggle-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 18px;
+      font-family: "Montserrat", sans-serif;
+      font-weight: 500;
+      margin: 0 0 15px 0;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      font-family: "Montserrat", sans-serif;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .week-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+      margin-bottom: 5px;
+    }
+    .week-day {
+      padding: 5px 0;
+    }
+    .day {
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .day:hover {
+      background-color: #e0e0e0;
+    }
+    .day.active {
+      background-color: #28a745;
+      color: white;
+    }
+    .day.disabled {
+      color: #ccc;
+      cursor: not-allowed;
+    }
+    .dropdown {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      color: #333;
+      font-family: "Montserrat", sans-serif;
+      border-radius: 5px;
+      margin-top: 10px;
+      background-color: #f9f9f9;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .note {
+      font-size: 12px;
+      margin-top: 5px;
+      font-family: "SourceCodePro", sans-serif;
+      font-weight: 500;
+      color: gray;
+    }
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #28a745;
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: vertical;
+      min-height: 80px;
+      margin-top: 10px;
+      font-family: "SourceCodePro", monospace;
+      box-sizing: border-box;
+    }
+    .btn-agendar {
+      background-color: #28a745;
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 20px auto 0 auto;
+      display: block;
+      min-width: 150px;
+    }
+    .btn-agendar:hover {
+      background-color: #218838;
+    }
+    .btn-agendar:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+    .month-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .month-title {
+      font-weight: 500;
+    }
+    .nav-arrow {
+      cursor: pointer;
+      color: #28a745;
+      font-size: 20px;
+      user-select: none;
+    }
+    .agendamento-box {
+      background-color: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+    .error-message {
+      color: #dc3545;
+      font-family: "SourceCodePro", sans-serif;
+      font-weight: 500;
+      font-size: 15px;
+      margin-top: 5px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="#" style="font-size: 20px;" class="btn-login" id="back-btn" onclick="voltarPagina()">&#x276E;</a>
+    <div class="local-card">
+      <h2 id="nome-local">Carregando...</h2>
+    </div>
+    <form id="coleta-form">
+      <div class="agendamento-box">
+        <div class="calendar-section">
+          <h2>Quando será sua coleta?</h2>
+          <div class="month-nav">
+            <span class="nav-arrow" onclick="mudarMes(-1)">&#9664;</span>
+            <span class="month-title" id="mes-ano"></span>
+            <span class="nav-arrow" onclick="mudarMes(1)">&#9654;</span>
+          </div>
+          <div class="week-days">
+            <div class="week-day">Dom</div>
+            <div class="week-day">Seg</div>
+            <div class="week-day">Ter</div>
+            <div class="week-day">Qua</div>
+            <div class="week-day">Qui</div>
+            <div class="week-day">Sex</div>
+            <div class="week-day">Sáb</div>
+          </div>
+          <div class="calendar" id="calendario"></div>
+          <div class="error-message" id="error-data">Por favor, selecione uma data.</div>
+          <input type="hidden" id="data" name="data" required>
+        </div>
+        <div class="material-section">
+          <h2>Quais materiais serão coletados?</h2>
+          <div class="note" id="material-nota"></div>
+          <select class="dropdown" id="material-select" name="material">
+            <option value="">Selecione uma opção</option>
+            <option value="informatica">Informática</option>
+            <option value="Eletro Eletronicos">Produtos Eletrônicos</option>
+            <option value="Residuos Eletronicos">Resíduos Eletrônicos</option>
+            <option value="Aparelhos Telefonicos">Aparelhos Telefônicos</option>
+          </select>
+          <div class="error-message" id="error-material">Por favor, selecione o tipo de material.</div>
+        </div>
+        <div class="peso-section">
+          <h2>Qual o peso aproximado da sua separação?</h2>
+          <div class="note" id="peso-nota"></div>
+          <select class="dropdown" id="peso-select" name="peso">
+            <option value="">Selecione uma opção</option>
+            <option value="ate5">Até 5kg</option>
+            <option value="5a10">De 5kg a 10kg</option>
+            <option value="10a20">De 10kg a 20kg</option>
+            <option value="mais20">Mais de 20kg</option>
+          </select>
+          <div class="error-message" id="error-peso">Por favor, selecione o peso aproximado.</div>
+        </div>
+        <div class="toggle-container">
+          <h2>Utilizar endereço e contatos do cadastro</h2>
+          <label class="toggle">
+            <input type="checkbox" id="usar-cadastro" name="usarCadastro" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="observacao">
+          <h2>Tem alguma observação?</h2>
+          <textarea id="observacao" name="observacao" placeholder="Comente sobre seus itens, horários que estará disponível, etc."></textarea>
+        </div>
+        <input type="hidden" id="local" name="local">
+        <button type="submit" class="btn-agendar">Agendar Coleta</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+  // ====== Para TESTE: definir pontoTemp se não existir ======
+  if (!localStorage.getItem('pontoTemp')) {
+    localStorage.setItem('pontoTemp', 'Tech-Recycle');
+  }
+
+  function voltarPagina() {
+    window.location.href = '/mapa';
+  }
+
+  // Data de hoje com hora zerada
+  const hojeLimpo = new Date();
+  hojeLimpo.setHours(0, 0, 0, 0);
+
+  // Navegação de meses
+  let mesAtual = hojeLimpo.getMonth();
+  let anoAtual = hojeLimpo.getFullYear();
+  let diaSelecionado = null;
+
+  function atualizarCalendario() {
+    const calendario = document.getElementById('calendario');
+    calendario.innerHTML = '';
+
+    const mesAnoElement = document.getElementById('mes-ano');
+    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    mesAnoElement.innerText = `${meses[mesAtual]} ${anoAtual}`;
+
+    const primeiroDia = new Date(anoAtual, mesAtual, 1);
+    const ultimoDia = new Date(anoAtual, mesAtual + 1, 0);
+
+    // Espaços vazios antes do primeiro dia
+    for (let i = 0; i < primeiroDia.getDay(); i++) {
+      const vazio = document.createElement('div');
+      vazio.className = 'day disabled';
+      calendario.appendChild(vazio);
+    }
+
+    // Dias do mês
+    for (let d = 1; d <= ultimoDia.getDate(); d++) {
+      const dia = document.createElement('div');
+      dia.className = 'day';
+      dia.innerText = d;
+
+      const dataAtual = new Date(anoAtual, mesAtual, d);
+      if (dataAtual < hojeLimpo) {
+        dia.classList.add('disabled');
+      } else {
+        dia.onclick = () => {
+          // Limpar erro de data se houver
+          document.getElementById('error-data').style.display = 'none';
+
+          document.querySelectorAll('.day.active').forEach(el => el.classList.remove('active'));
+          dia.classList.add('active');
+          diaSelecionado = d;
+
+          const mm = String(mesAtual + 1).padStart(2, '0');
+          const dd = String(d).padStart(2, '0');
+          const dataFinal = `${anoAtual}-${mm}-${dd}`;
+          console.log('Data selecionada no calendário:', dataFinal);
+          document.getElementById('data').value = dataFinal;
+        };
+      }
+      calendario.appendChild(dia);
+    }
+  }
+
+  function mudarMes(direcao) {
+    mesAtual += direcao;
+    if (mesAtual < 0) {
+      mesAtual = 11;
+      anoAtual--;
+    } else if (mesAtual > 11) {
+      mesAtual = 0;
+      anoAtual++;
+    }
+    atualizarCalendario();
+  }
+
+  window.onload = () => {
+    // Recupera ponto selecionado
+    const pontoSelecionado = localStorage.getItem('pontoTemp') || '';
+    document.getElementById('nome-local').innerText = pontoSelecionado;
+    document.getElementById('local').value = pontoSelecionado;
+
+    if (!pontoSelecionado) {
+      voltarPagina();
+      return;
+    }
+    atualizarCalendario();
+
+    // Validação em tempo real
+    document.getElementById('material-select').addEventListener('change', function() {
+      if (this.value) {
+        document.getElementById('error-material').style.display = 'none';
+      }
+    });
+
+    document.getElementById('peso-select').addEventListener('change', function() {
+      if (this.value) {
+        document.getElementById('error-peso').style.display = 'none';
+      }
+    });
+
+    document.getElementById('coleta-form').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      // Limpar mensagens de erro
+      document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+
+      const dataValue = document.getElementById('data').value;
+      const materialValue = document.getElementById('material-select').value;
+      const localValue = document.getElementById('local').value;
+      const pesoValue = document.getElementById('peso-select').value;
+      const usarCadastroValue = document.getElementById('usar-cadastro').checked;
+      const observacaoValue = document.getElementById('observacao').value;
+
+      let hasError = false;
+
+      if (!dataValue) {
+        document.getElementById('error-data').style.display = 'block';
+        hasError = true;
+      }
+      if (!materialValue || materialValue === "") {
+        document.getElementById('error-material').style.display = 'block';
+        hasError = true;
+      }
+      if (!pesoValue) {
+        document.getElementById('error-peso').style.display = 'block';
+        hasError = true;
+      }
+
+      if (hasError) {
+        return;
+      }
+
+      // Desabilitar botão de envio
+      const btnAgendar = document.querySelector('.btn-agendar');
+      const textoOriginal = btnAgendar.textContent;
+      btnAgendar.textContent = 'Agendando...';
+      btnAgendar.disabled = true;
+
+      try {
+        const response = await fetch('/agendar-coleta', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            data: dataValue,
+            material: materialValue,
+            local: localValue,
+            peso: pesoValue,
+            usarCadastro: usarCadastroValue,
+            observacao: observacaoValue
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.sucesso) {
+          localStorage.setItem('agendamento', JSON.stringify(result.agendamento));
+          window.location.href = `/agenda?idColeta=${result.agendamento.idColeta}`;
+        } else {
+          alert('Erro ao agendar coleta: ' + (result.mensagem || 'Erro desconhecido'));
+          btnAgendar.textContent = textoOriginal;
+          btnAgendar.disabled = false;
+        }
+      } catch (error) {
+        console.error('Erro ao agendar coleta:', error);
+        alert('Erro ao agendar coleta. Tente novamente mais tarde.');
+        btnAgendar.textContent = textoOriginal;
+        btnAgendar.disabled = false;
+      }
+    });
+  };
+  </script>
+</body>
+</html>
